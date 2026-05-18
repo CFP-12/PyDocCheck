@@ -1,36 +1,103 @@
 # PyDocCheck
-## PyDocCheck (ADT: Automated Documentation Tester)
-문서는 거짓말을 하지 않아야 한다.
-GitHub 저장소 내 README 및 문서에 포함된 파이썬 코드 예제의 실행 가능성을 자동으로 검증하는 통합 Dev-Tool 시스템이다.
-## 프로젝트 개요 (Overview)
-오늘날 오픈소스 프로젝트에서 소스 코드의 업데이트 속도를 문서가 따라가지 못하는 '문서 부채(Documentation Debt)' 현상은 신규 사용자의 진입 장벽을 높이고 프로젝트의 신뢰도를 떨어뜨린다.
-PyDocCheck는 사용자가 입력한 GitHub Repository URL을 기반으로 문서 내 파이썬 코드 블록을 자동으로 추출하고, 독립된 가상 환경에서 실행하여 그 결과를 리포트로 제공합니다. 이를 통해 오픈소스 메인테이너는 문서의 정합성을 손쉽게 유지할 수 있다.
-## 핵심 기능 (Key Features)
- *  Repository Analyzer: GitHub API를 통해 README.md, /docs, /examples 등 코드 블록이 포함된 문서를 자동 탐색
- *  Code Extraction Engine: mistune 파서를 활용하여 문서 내 파이썬 코드 블록(```python)을 정밀하게 추출하고 인덱싱
- *  Execution Sandbox: venv를 통해 각 코드 블록을 위한 독립적인 Ephemeral 가상 환경을 생성하여 시스템 오염 없이 안전하게 테스트를 수행
- *  Analysis & Reporting Engine: 실행 로그를 분석하여 오류 유형(Syntax, Import, Runtime 등)을 분류하고, 시각화된 통계 리포트를 제공
-## 기술 스택 (Tech Stack)
-Core & Backend
- * Language: Python 3.10+ (Type Hinting 적용)
- * Parsing: mistune (AST 기반), re, ast
- * Isolation: venv, subprocess (Timeout & Security 제어)
-Interface & Networking
- * CLI & TUI: Typer, Rich (터미널 UI 시각화)
- * API: requests / httpx (GitHub REST API v3)
- * Reporting: Jinja2 (Markdown 템플릿), Plotly (데이터 시각화)
-## 시스템 아키텍처 (Pipeline)
-본 시스템은 다음과 같은 8단계 파이프라인으로 동작한다.
- 1. Repository Discovery: GitHub URL 기반 저장소 구조 분석
- 2. Document Loading: 문서 파일 로드 및 메타데이터 생성
- 3. Code Extraction: Markdown 파싱을 통한 코드 블록 추출
- 4. Preprocessing: 코드 정제 및 import 기반 의존성 추출
- 5. Sandbox Execution: 가상 환경 생성 및 독립 실행
- 6. Log Analysis: Traceback 분석 및 오류 유형 분류
- 7. Statistics: 성공률 및 오류 분포 통계 집계
- 8. Reporting: 최종 리포트 및 시각화 결과 생성
-## 주요 시나리오 (Use Cases)
- * Scenario A (메인테이너): 새로운 버전 릴리즈 전, 수백 개의 문서 내 예제 코드가 여전히 유효한지 전수 검사한다.
- * Scenario B (기여자): PR을 올릴 때 GitHub Actions를 통해 내가 수정한 문서의 예제 코드가 실제로 작동하는지 자동 피드백을 받는다.
- * Scenario C (의존성 해결): 코드 내 import pandas와 같은 구문을 감지하여 필요한 라이브러리를 가상 환경에 자동 설치하고 테스트한다.
- 
+
+Automated Documentation Code Validator for Python
+
+## Project Overview
+
+PyDocCheck is a tool that automatically validates Python code examples embedded in documentation (README.md, .rst files, etc.) to ensure they remain executable and up-to-date.
+
+## Current Stage: Document Parsing & Code Extraction
+
+This is the initial development phase focusing on:
+- Extracting code blocks from Markdown and RST documents
+- Preprocessing and normalizing extracted code
+- Building metadata for code traceability
+
+## Project Structure
+
+```
+pydoccheck/
+├── src/
+│   └── pydoccheck/
+│       ├── parsers/           # Document parsers (Markdown, RST)
+│       ├── models/            # Data models (CodeBlock, DocumentInfo)
+│       └── utils/             # Helper utilities
+├── tests/
+│   ├── fixtures/              # Test data and sample documents
+│   └── test_*.py              # Test files
+├── requirements.txt           # Dependencies
+└── README.md                  # This file
+```
+
+## Getting Started
+
+### Installation
+
+```bash
+cd c:\Users\백지유\Desktop\pydoccheck
+pip install -r requirements.txt
+```
+
+### Running Tests
+
+```bash
+pytest tests/test_markdown_parser.py -v
+```
+
+### Basic Usage
+
+```python
+from pydoccheck.parsers import MarkdownParser
+from pydoccheck.utils.helpers import load_document
+
+# Load document
+content, doc_info = load_document("path/to/file.md")
+
+# Parse code blocks
+parser = MarkdownParser()
+blocks = parser.parse(content, doc_info)
+
+# Access extracted code
+for block in blocks:
+    print(f"Block {block.block_id}: {block.language}")
+    print(f"Lines {block.start_line}-{block.end_line}")
+    print(f"Imports: {block.imports}")
+    print(f"Executable: {block.is_executable}")
+```
+
+## Development Timeline
+
+- **Week 1**: Design document structure and parser interfaces
+- **Week 2**: Implement Markdown/RST code extraction engine
+- **Week 3**: Add metadata mapping logic
+- **Week 4**: Code preprocessing (comment removal, etc.)
+- **Week 5**: Code snippet optimization
+- **Week 6**: Syntax validation
+- **Week 7**: Integration with execution sandbox
+- **Week 8**: Final validation and reporting
+
+## Testing with Dummy Data
+
+Sample documentation files are provided in `tests/fixtures/sample_docs/`:
+- `sample_simple.md` - Basic examples
+- `sample_complex.md` - Examples with errors
+- `sample_rst.rst` - reStructuredText format
+
+Run tests to validate the parser implementation:
+```bash
+pytest tests/ -v --tb=short
+```
+
+## Team Members
+
+- 정민경: Document analysis & data collection (This module)
+- 백지유: Document parsing & code preprocessing
+- 강인후: Execution environment & test engine
+- 조혜준: Result analysis & reporting
+
+## Next Steps
+
+1. Run the test suite to validate current implementation
+2. Expand parser to handle edge cases
+3. Implement code preprocessing logic
+4. Integrate with execution engine
