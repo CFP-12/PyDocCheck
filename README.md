@@ -34,7 +34,7 @@ pydoccheck/
 ### Installation
 
 ```bash
-cd c:\Users\백지유\Desktop\pydoccheck
+cd (Where you want to install)
 pip install -r requirements.txt
 ```
 
